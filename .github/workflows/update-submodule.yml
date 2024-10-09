@@ -1,0 +1,24 @@
+name: Update Outer Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout inner repo
+      uses: actions/checkout@v2
+
+    - name: Update outer repo submodule
+      run: |
+        git config --global user.email "bramleisink@outlook.com"
+        git config --global user.name "BramLeisink"
+        git clone https://github.com/BramLeisink/quartz-vault.git
+        cd quartz-vault
+        git submodule update --remote content
+        git add .
+        git commit -m "Updated submodule"
+        git push https://BramLeisink:${{ secrets.GITHUB_TOKEN }}@github.com/BramLeisink/quartz-vault.git
