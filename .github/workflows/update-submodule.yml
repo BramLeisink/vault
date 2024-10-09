@@ -3,7 +3,7 @@ name: Update Outer Repo
 on:
   push:
     branches:
-      - main
+      - main  # Adjust if your main branch has a different name
 
 jobs:
   update-submodule:
@@ -11,14 +11,25 @@ jobs:
     steps:
     - name: Checkout inner repo
       uses: actions/checkout@v2
+      with:
+        submodules: 'true'  # Automatically initialize and update submodules
 
     - name: Update outer repo submodule
       run: |
+        # Set user info for git
         git config --global user.email "bramleisink@outlook.com"
         git config --global user.name "BramLeisink"
+
+        # Clone the outer repository
         git clone https://github.com/BramLeisink/quartz-vault.git
         cd quartz-vault
-        git submodule update --init --recursive content 
+
+        # Initialize and update the submodule in the 'content' folder
+        git submodule update --init --recursive content
+
+        # Check for changes to commit
         git add .
-        git commit -m "Updated submodule"
+        git commit -m "Updated submodule" || echo "No changes to commit"
+
+        # Push changes back to the outer repository
         git push https://BramLeisink:${{ secrets.GITHUB_TOKEN }}@github.com/BramLeisink/quartz-vault.git
