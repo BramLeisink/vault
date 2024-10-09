@@ -18,7 +18,7 @@ jobs:
         git config --global user.name "BramLeisink"
         git clone https://github.com/BramLeisink/quartz-vault.git
         cd quartz-vault
-        git submodule update --remote content
+        git submodule update --init --recursive content 
         git add .
         git commit -m "Updated submodule"
         git push https://BramLeisink:${{ secrets.GITHUB_TOKEN }}@github.com/BramLeisink/quartz-vault.git
