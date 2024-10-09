@@ -1,35 +1,30 @@
-name: Update Outer Repo
+name: Send submodule updates to parent repo
 
 on:
   push:
-    branches:
-      - main  # Adjust if your main branch has a different name
+    branches: 
+      - main
 
 jobs:
-  update-submodule:
+  update:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout inner repo
-      uses: actions/checkout@v2
-      with:
-        submodules: 'true'  # Automatically initialize and update submodules
+      - uses: actions/checkout@v2
+        with: 
+          repository: BramLeisink/quartz-vault
+          token: ${{ secrets.PRIVATE_TOKEN_GITHUB }}
+          submodules: true
 
-    - name: Update outer repo submodule
-      run: |
-        # Set user info for git
-        git config --global user.email "bramleisink@outlook.com"
-        git config --global user.name "BramLeisink"
+      - name: Pull & update submodules recursively
+        run: |
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
 
-        # Clone the outer repository
-        git clone https://github.com/BramLeisink/quartz-vault.git
-        cd quartz-vault
-
-        # Initialize and update the submodule in the 'content' folder
-        git submodule update --init --recursive content
-
-        # Check for changes to commit
-        git add .
-        git commit -m "Updated submodule" || echo "No changes to commit"
-
-        # Push changes back to the outer repository
-        git push https://BramLeisink:${{ secrets.GITHUB_TOKEN }}@github.com/BramLeisink/quartz-vault.git
+      - name: Commit
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions - update submodules"
+          git add --all
+          git commit -m "Update submodules" || echo "No changes to commit"
+          git push
